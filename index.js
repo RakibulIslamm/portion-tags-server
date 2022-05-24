@@ -1,5 +1,5 @@
 const express = require('express');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const app = express();
 const cors = require('cors');
@@ -19,6 +19,7 @@ const run = async () => {
         await client.connect();
         const db = client.db('Portion_Tags');
         const productCollection = db.collection('products');
+        const orderCollection = db.collection('orders');
         console.log('Connected');
 
         // Get all products
@@ -29,8 +30,15 @@ const run = async () => {
 
         // Get a product by id
         app.get('/products/:id', async (req, res) => {
-            const product = await productCollection.findOne({ _id: req.params.id });
+            const product = await productCollection.findOne({ _id: ObjectId(req.params.id) });
             res.send(product);
+        });
+
+        // Post order to database
+        app.post('/orders', async (req, res) => {
+            const order = req.body;
+            const result = await orderCollection.insertOne(order);
+            res.send(result);
         });
 
 
