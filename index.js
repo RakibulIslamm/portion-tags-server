@@ -41,6 +41,13 @@ const run = async () => {
             res.send(result);
         });
 
+        // Post a product to database
+        app.post('/products', async (req, res) => {
+            const product = req.body;
+            const result = await productCollection.insertOne(product);
+            res.send(result);
+        });
+
 
     } catch (err) {
         // console.log(err);
