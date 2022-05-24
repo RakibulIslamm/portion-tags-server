@@ -20,7 +20,6 @@ const run = async () => {
         const db = client.db('Portion_Tags');
         const productCollection = db.collection('products');
         const orderCollection = db.collection('orders');
-        console.log('Connected');
 
         // Get all products
         app.get('/products', async (req, res) => {
@@ -47,6 +46,19 @@ const run = async () => {
             const result = await productCollection.insertOne(product);
             res.send(result);
         });
+
+        // get all orders
+        app.get('/orders', async (req, res) => {
+            const orders = await orderCollection.find().toArray();
+            res.send(orders);
+        });
+
+        // get single user order
+        app.get('/myorders', async (req, res) => {
+            const email = req.query.email;
+            const orders = await orderCollection.find({ email: email }).toArray();
+            res.send(orders);
+        })
 
 
     } catch (err) {
