@@ -21,6 +21,12 @@ const run = async () => {
         const productCollection = db.collection('products');
         console.log('Connected');
 
+        // Get all products
+        app.get('/products', async (req, res) => {
+            const products = await productCollection.find().toArray();
+            res.send(products);
+        });
+
 
 
 
