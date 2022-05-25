@@ -21,6 +21,7 @@ const run = async () => {
         const productCollection = db.collection('products');
         const orderCollection = db.collection('orders');
         const reviewCollection = db.collection('reviews');
+        const userCollection = db.collection('users');
 
         // Get all products
         app.get('/products', async (req, res) => {
@@ -81,6 +82,35 @@ const run = async () => {
             res.send(result);
         });
 
+        // Delete a product
+        app.delete('/product/:id', async (req, res) => {
+            const result = await productCollection.deleteOne({ _id: ObjectId(req.params.id) });
+            res.send(result);
+        });
+
+        // Put user to db
+        app.put('/users', async (req, res) => {
+            const user = req.body;
+            const result = await userCollection.insertOne(user);
+            res.send(result);
+        });
+
+        // Is admin API
+        app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ email: email });
+            let isAdmin = false;
+            if (user) {
+                if (user.role === 'admin') {
+                    isAdmin = true;
+                }
+                else {
+                    isAdmin = false;
+                }
+            }
+            // console.log(isAdmin);
+            res.json({ admin: isAdmin });
+        })
 
     } catch (err) {
         // console.log(err);
