@@ -20,6 +20,7 @@ const run = async () => {
         const db = client.db('Portion_Tags');
         const productCollection = db.collection('products');
         const orderCollection = db.collection('orders');
+        const reviewCollection = db.collection('reviews');
 
         // Get all products
         app.get('/products', async (req, res) => {
@@ -59,6 +60,26 @@ const run = async () => {
             const orders = await orderCollection.find({ email: email }).toArray();
             res.send(orders);
         })
+
+        // delete and order
+        app.delete('/orders/:id', async (req, res) => {
+            const result = await orderCollection.deleteOne({ _id: ObjectId(req.params.id) });
+            res.send(result);
+        });
+
+        // Update order status
+        app.put('/orders/:id', async (req, res) => {
+            const order = req.body;
+            const result = await orderCollection.updateOne({ _id: ObjectId(req.params.id) }, { $set: { status: order.status } });
+            res.send(result);
+        });
+
+        // Post client review
+        app.post('/reviews', async (req, res) => {
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review);
+            res.send(result);
+        });
 
 
     } catch (err) {
