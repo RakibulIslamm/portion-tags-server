@@ -108,12 +108,25 @@ const run = async () => {
                     isAdmin = false;
                 }
             }
-            // console.log(isAdmin);
             res.json({ admin: isAdmin });
         })
 
+        // update a user
+        app.put('/user/:id', async (req, res) => {
+            const userInfo = req.body;
+            const result = await userCollection.updateOne({ _id: ObjectId(req.params.id) }, { $set: { userInfo } }, { upsert: true });
+            res.send(result);
+        });
+
+        // Get user by email
+        app.get('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ email: email });
+            res.send(user);
+        });
+
     } catch (err) {
-        // console.log(err);
+
     }
     finally {
         // client.close();
