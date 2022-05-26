@@ -1,14 +1,31 @@
 const express = require('express');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
-const app = express();
+const jwt = require('jsonwebtoken');
 const cors = require('cors');
+
+const app = express();
 port = process.env.PORT || 5000;
 
 // Middle ware
 app.use(cors());
 app.use(express.json());
 
+
+const verifyToken = (req, res, next) => {
+    const token = req.headers?.authorization?.split(' ')[1];
+    // console.log(token);
+    if (!token) {
+        return res.status(401).send({ message: 'Unauthorized access' })
+    }
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(403).send({ message: 'Forbidden access', statusCode: 403 });
+        }
+        req.decoded = decoded;
+        next();
+    })
+}
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.qspqh.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
@@ -55,11 +72,19 @@ const run = async () => {
             res.send(orders);
         });
 
-        // get single user order
-        app.get('/myorders', async (req, res) => {
+        // get single user orders
+        app.get('/myorders', verifyToken, async (req, res) => {
             const email = req.query.email;
-            const orders = await orderCollection.find({ email: email }).toArray();
-            res.send(orders);
+            const decodedEmail = req.decoded.email;
+            // console.log(decodedEmail === email);
+            if (decodedEmail === email) {
+                const orders = await orderCollection.find({ email: email }).toArray();
+                res.send(orders);
+            }
+            else {
+                res.status(403).send({ message: "Forbidden access", statusCode: 403 });
+            }
+
         })
 
         // delete and order
@@ -150,6 +175,13 @@ const run = async () => {
                 res.json({ error: "You are not authorize" });
             }
 
+        });
+
+        // jwt authentication
+        app.post('/login', async (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '1d' });
+            res.send({ token });
         });
 
     } catch (err) {
