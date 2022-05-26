@@ -211,14 +211,18 @@ const run = async () => {
 
 
         app.post('/create-payment-intent', async (req, res) => {
-            const { convertedAmount } = req.body;
+            const { amount } = req.body;
+            if (!amount) {
+                return;
+            }
+            // console.log(amount);
+            const convertedAmount = parseInt(amount * 100);
+            console.log(convertedAmount);
             const paymentIntent = await stripe.paymentIntents.create({
                 amount: convertedAmount,
                 currency: "usd",
                 payment_method_types: ['card']
             });
-            console.log(convertedAmount);
-            // console.log(paymentIntent);
             res.send({ clientSecret: paymentIntent.client_secret });
         })
 
