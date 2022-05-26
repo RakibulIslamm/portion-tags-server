@@ -213,7 +213,7 @@ const run = async () => {
         app.post('/create-payment-intent', async (req, res) => {
             const { amount } = req.body;
             if (!amount) {
-                return;
+                return res.send({ message: 'Loading' });
             }
             // console.log(amount);
             const convertedAmount = parseInt(amount * 100);
