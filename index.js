@@ -125,6 +125,33 @@ const run = async () => {
             res.send(user);
         });
 
+        // Make admin
+        app.put('/make-admin/:email', async (req, res) => {
+            const email = req.body.email;
+            const CurrentUserEmail = req.params.email;
+            const user = await userCollection.findOne({ email: CurrentUserEmail });
+            console.log(user);
+            if (!user) {
+                res.json('403 Forbidden')
+            }
+            else if (user.role === 'admin') {
+                const filter = { email: email };
+                const dbUser = await userCollection.findOne(filter);
+                if (dbUser) {
+                    const updateDoc = { $set: { role: 'admin' } };
+                    const result = await userCollection.updateOne(filter, updateDoc);
+                    res.json(result);
+                }
+                else {
+                    res.json({ error: `We Couldn't find this ${email} user` });
+                }
+            }
+            else {
+                res.json({ error: "You are not authorize" });
+            }
+
+        });
+
     } catch (err) {
 
     }
