@@ -177,12 +177,25 @@ const run = async () => {
 
         });
 
-        // jwt authentication
+        // jwt Login
         app.post('/login', async (req, res) => {
             const user = req.body;
             const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '1d' });
             res.send({ token });
         });
+
+        // get all reviews
+        app.get('/reviews', async (req, res) => {
+            const reviews = await reviewCollection.find().toArray();
+            res.send(reviews);
+        });
+
+        // Get an order by id
+        app.get('/order/:id', async (req, res) => {
+            const order = await orderCollection.findOne({ _id: ObjectId(req.params.id) });
+            res.send(order);
+        });
+
 
     } catch (err) {
 
